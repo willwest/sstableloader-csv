@@ -1,5 +1,5 @@
 # Fork-Specific Notes
-This fork of sstableloader-csv adapts the code to use CQLSSTableWriter instead of the older SSTableSimpleUnsortedWriter. With these changes, tables can be bulk inserted into Cassandra without the use of cassandra-cli. You must change the schema and insertion parameters within the code for your specific needs. A test csv file is provided that should work with this code out of the box.
+This fork of sstableloader-csv adapts the code to use CQLSSTableWriter instead of the older SSTableSimpleUnsortedWriter. With these changes, tables can be bulk inserted into Cassandra without the use of cassandra-cli. You must specify your schema and insertion queries within separate text files. These filenames must be included as parameters when executing the `run.sh` script. Sample `schema.cql` and `insert.cql` files are included for you. A test csv file is also provided that should work with this code out of the box.
 
 # sstableloader-csv
 
@@ -7,11 +7,11 @@ This tool parses CSV files into sstables for Apache Cassandra. It was written fo
 
 ### Installation
 
-Run the 'run' script with 3 arguments - `<keyspace>` `<column>` `<input>`
+Run the 'run' script with 5 arguments - `<keyspace>` `<column>` `<schema_file>` `<insert_file>` `<input>`
 
 For example:
 
-       ./run.sh test data test.csv
+       ./run.sh test data schema.cql insert.cql test.csv
 
 ### Requirements
 
