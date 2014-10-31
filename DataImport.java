@@ -1,5 +1,7 @@
 import java.io.*;
 import java.util.*;
+import java.nio.charset.*;
+import java.nio.file.*;
 
 import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.io.sstable.CQLSSTableWriter;
@@ -15,9 +17,9 @@ public class DataImport {
 
     public static void main(String[] args) throws IOException, InvalidRequestException {
 
-        if (args.length < 3)
+        if (args.length < 5)
         {
-            System.out.println("Expecting 3 arguments - <keyspace>, <column>, <csv_file>");
+            System.out.println("Expecting 5 arguments - <keyspace> <column> <schema_file> <insert_file> <csv_file>");
             System.exit(1);
         }
 
@@ -25,32 +27,16 @@ public class DataImport {
 
         String keyspace = args[0];
         String col = args[1];
-        filename = args[2];
+        filename = args[4];
 
-        BufferedReader reader = new BufferedReader(new FileReader(filename));
+	BufferedReader reader = new BufferedReader(new FileReader(filename));
 
         File directory = new File(keyspace);
         if (!directory.exists())
             directory.mkdir();
 
-	String schema = "CREATE TABLE test.data ("
-	    + " Col1 text PRIMARY KEY,"
-	    + " Col2 text,"
-	    + " Col3 text,"
-	    + " Col4 text,"
-	    + " Col5 text,"
-	    + " Col6 text,"
-	    + " Col7 text,"
-	    + " Col8 text,"
-	    + " Col9 text,"
-	    + " Col10 text,"
-	    + " Col11 text,"
-	    + " Col12 text"
-	    + ")";
-
-	String insert = "INSERT INTO test.data"
-	    + " (Col1, Col2, Col3, Col4, Col5, Col6, Col7, Col8, Col9, Col10, Col11, Col12)"
-	    + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	String schema = readFile(args[2], StandardCharsets.UTF_8);
+	String insert = readFile(args[3], StandardCharsets.UTF_8);
 	
 	// Creates a new writer. You need to provide at least the directory where to write the created sstable,
 	// the schema for the sstable to write and a (prepared) insert statement to use. If you do not use the
@@ -89,6 +75,14 @@ public class DataImport {
 
         System.exit(0);
     }
+
+  static String readFile(String path, Charset encoding) 
+  throws IOException 
+    {
+	byte[] encoded = Files.readAllBytes(Paths.get(path));
+	return new String(encoded, encoding);
+    }
+
 
     static class CsvParse {
 
